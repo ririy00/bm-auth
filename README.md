@@ -121,6 +121,9 @@ This service handles:
 
 BM Auth is designed as a modular authentication service that can be used by other backend services in a microservice architecture.
 
+Detailed NestJS module notes are available in `docs/auth-module-notes.md`.
+Code-level flow/reference is available in `docs/code-reference.md`.
+
 Tech stack:
 
 - NestJS (modular architecture)
@@ -238,47 +241,77 @@ The app may restart once during startup because PostgreSQL needs time to initial
 
 ---
 
-# 🔐 API Endpoints
+# 🔐 API Usage
 
-## Register
-
-```
-POST /auth/register
-```
-
-Body:
+Base URL:
 
 ```
+http://localhost:3000
+```
+
+## 1) Register a user
+
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"123456"}'
+```
+
+Expected response (shape):
+
+```json
 {
+  "id": "USER_ID",
   "email": "test@test.com",
-  "password": "123456"
+  "role": "USER",
+  "createdAt": "2026-02-28T21:00:00.000Z",
+  "updatedAt": "2026-02-28T21:00:00.000Z"
 }
 ```
 
----
+## 2) Login and get access token
 
-## Login
-
-```
-POST /auth/login
-```
-
-Body:
-
-```
-{
-  "email": "test@test.com",
-  "password": "123456"
-}
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"123456"}'
 ```
 
-Response:
+Expected response (shape):
 
-```
+```json
 {
   "access_token": "JWT_TOKEN"
 }
 ```
+
+## 3) Call protected endpoint (`/users/me`)
+
+Use the token from login:
+
+```bash
+TOKEN="JWT_TOKEN"
+curl http://localhost:3000/users/me \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Expected response (shape):
+
+```json
+{
+  "id": "USER_ID",
+  "email": "test@test.com",
+  "role": "USER",
+  "createdAt": "2026-02-28T21:00:00.000Z",
+  "updatedAt": "2026-02-28T21:00:00.000Z"
+}
+```
+
+## Endpoint summary
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /users/me` (requires Bearer token)
 
 ---
 
@@ -307,6 +340,24 @@ npm run start:prod
 ```
 docker compose down
 ```
+
+---
+
+# 🔁 GitHub CI/CD
+
+This repo now includes GitHub Actions workflows:
+
+- `CI` (`.github/workflows/ci.yml`)
+  - Trigger: pull requests + pushes to `main`, `master`, `develop`
+  - Runs: install, `prisma generate`, tests, build
+
+- `CD` (`.github/workflows/cd.yml`)
+  - Trigger: pushes to `main`, tags like `v1.0.0`, or manual dispatch
+  - Builds and pushes Docker image to GHCR:
+    - `ghcr.io/<owner>/<repo>`
+    - tags include branch, tag, commit SHA, and `latest` on default branch
+
+No extra secret is needed for GHCR publish in the same repo; it uses `GITHUB_TOKEN` with `packages: write` permission.
 
 ---
 

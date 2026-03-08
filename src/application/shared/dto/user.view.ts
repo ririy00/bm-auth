@@ -1,11 +1,11 @@
 import { User } from '../../../domain/entities/user.entity';
 
-export type AuthUserView = Pick<
+export type UserView = Pick<
   User,
   'id' | 'email' | 'role' | 'createdAt' | 'updatedAt'
 >;
 
-export const toAuthUserView = (user: User): AuthUserView => ({
+export const toUserView = (user: User): UserView => ({
   id: user.id,
   email: user.email,
   role: user.role,

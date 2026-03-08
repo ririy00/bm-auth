@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { PasswordHasher } from '../../../domain/services/password-hasher';
-import { toAuthUserView } from '../dto/auth-user.view';
+import { toUserView } from '../../shared/dto/user.view';
 import { EmailAlreadyExistsError } from '../errors/email-already-exists.error';
 
 type RegisterUserCommand = {
@@ -12,7 +11,6 @@ type RegisterUserCommand = {
 /**
  * Registers a user after checking email uniqueness and hashing the password.
  */
-@Injectable()
 export class RegisterUserUseCase {
   constructor(
     private readonly userRepository: UserRepository,
@@ -34,6 +32,6 @@ export class RegisterUserUseCase {
       password: hashed,
     });
 
-    return toAuthUserView(user);
+    return toUserView(user);
   }
 }

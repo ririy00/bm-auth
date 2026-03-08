@@ -281,11 +281,30 @@ Expected response (shape):
 
 ```json
 {
-  "access_token": "JWT_TOKEN"
+  "access_token": "JWT_TOKEN",
+  "refresh_token": "REFRESH_TOKEN"
 }
 ```
 
-## 3) Call protected endpoint (`/users/me`)
+## 3) Refresh tokens
+
+```bash
+REFRESH_TOKEN="REFRESH_TOKEN"
+curl -X POST http://localhost:3000/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d "{\"refresh_token\":\"$REFRESH_TOKEN\"}"
+```
+
+Expected response (shape):
+
+```json
+{
+  "access_token": "NEW_JWT_TOKEN",
+  "refresh_token": "NEW_REFRESH_TOKEN"
+}
+```
+
+## 4) Call protected endpoint (`/users/me`)
 
 Use the token from login:
 
@@ -311,6 +330,7 @@ Expected response (shape):
 
 - `POST /auth/register`
 - `POST /auth/login`
+- `POST /auth/refresh`
 - `GET /users/me` (requires Bearer token)
 
 ---
@@ -375,7 +395,7 @@ docker compose up --build --no-cache
 
 # 🔮 Future Improvements
 
-- Refresh token rotation
+- Refresh token revocation/logout endpoint
 - Role-based authorization (RBAC)
 - Swagger documentation
 - Redis integration

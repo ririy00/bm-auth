@@ -1,36 +1,44 @@
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { PasswordHasher } from '../../../domain/services/password-hasher';
 import { TokenService } from '../../../domain/services/token.service';
-import { InvalidCredentialsError } from '../errors/invalid-credentials.error';
+import { InvalidRefreshTokenError } from '../errors/invalid-refresh-token.error';
 
-type LoginUserCommand = {
-  email: string;
-  password: string;
+type RefreshTokenCommand = {
+  refreshToken: string;
 };
 
-/**
- * Verifies credentials and returns a signed access token.
- */
-export class LoginUserUseCase {
+export class RefreshTokenUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
   ) {}
 
-  /**
-   * Throws InvalidCredentialsError when email/password is incorrect.
-   */
-  async execute(command: LoginUserCommand) {
-    const user = await this.userRepository.findByEmail(command.email);
-    if (!user) throw new InvalidCredentialsError();
+  async execute(command: RefreshTokenCommand) {
+    let payload: { type: string; sub: string };
+
+    try {
+      payload = this.tokenService.verifyRefreshToken(command.refreshToken);
+    } catch {
+      throw new InvalidRefreshTokenError();
+    }
+
+    if (payload.type !== 'refresh') {
+      throw new InvalidRefreshTokenError();
+    }
+
+    const user = await this.userRepository.findById(payload.sub);
+    if (!user?.refreshToken) {
+      throw new InvalidRefreshTokenError();
+    }
 
     const isMatch = await this.passwordHasher.compare(
-      command.password,
-      user.password,
+      command.refreshToken,
+      user.refreshToken,
     );
-
-    if (!isMatch) throw new InvalidCredentialsError();
+    if (!isMatch) {
+      throw new InvalidRefreshTokenError();
+    }
 
     const accessToken = this.tokenService.signAccessToken({
       sub: user.id,

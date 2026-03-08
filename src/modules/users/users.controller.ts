@@ -1,13 +1,19 @@
 import {
+  BadRequestException,
   Controller,
+  DefaultValuePipe,
   Get,
   NotFoundException,
+  ParseIntPipe,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { toAuthUserView } from '../../application/auth/dto/auth-user.view';
-import { UserRepository } from '../../domain/repositories/user.repository';
+import { GetCurrentUserUseCase } from '../../application/user/use-cases/get-current-user.use-case';
+import { InvalidPageError } from '../../application/user/errors/invalid-page.error';
+import { UserNotFoundError } from '../../application/user/errors/user-not-found.error';
+import { GetUsersUseCase } from '../../application/user/use-cases/get-users.use-case';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 type AuthenticatedRequest = Request & {
@@ -19,16 +25,38 @@ type AuthenticatedRequest = Request & {
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly getCurrentUser: GetCurrentUserUseCase,
+    private readonly getUsers: GetUsersUseCase,
+  ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async list(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ) {
+    try {
+      return await this.getUsers.execute(page);
+    } catch (error) {
+      if (error instanceof InvalidPageError) {
+        throw new BadRequestException(error.message);
+      }
+
+      throw error;
+    }
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@Req() req: AuthenticatedRequest) {
-    const user = await this.userRepository.findById(req.user.id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    try {
+      return await this.getCurrentUser.execute(req.user.id);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        throw new NotFoundException('User not found');
+      }
 
-    return toAuthUserView(user);
+      throw error;
+    }
   }
 }

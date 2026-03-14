@@ -33,7 +33,7 @@ jobs:
         run: npm ci
 
       - name: Generate Prisma client for Auth
-        working-directory: ./packages/auth-service
+        working-directory: ./apps/auth-service
         run: npx prisma generate
 
       - name: Run tests

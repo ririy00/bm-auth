@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@bm/auth-database/client';
 import { getDatabaseUrl } from '../../config/database.config';
 
 @Injectable()

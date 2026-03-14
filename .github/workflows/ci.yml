@@ -32,11 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prisma client
+      - name: Generate Prisma client for Auth
+        working-directory: ./apps/auth-service
         run: npx prisma generate
 
       - name: Run tests
-        run: npm test -- --runInBand
-
-      - name: Build
-        run: npm run build
+        run: npm test

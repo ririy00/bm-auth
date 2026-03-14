@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("PAYMENT_DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/client"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+model PaymentRecord {
+  id               String   @id @default(uuid())
+  externalRef      String?  @unique
+  amountInCents    Int
+  currency         String   @default("USD")
+  status           String   @default("PENDING")
+  provider         String?
+  providerResponse String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@bm/payment-database",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./client": {
+      "types": "./generated/client/index.d.ts",
+      "default": "./generated/client/index.js"
+    }
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.2"
+  },
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
+  }
+}

@@ -7,4 +7,4 @@
  * @returns {string | undefined} The database URL if set, otherwise undefined.
  */
 export const getDatabaseUrl = (): string | undefined =>
-  process.env.DATABASE_URL;
+  process.env.AUTH_DATABASE_URL ?? process.env.DATABASE_URL;

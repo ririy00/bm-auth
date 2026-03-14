@@ -7,21 +7,24 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Auth Service: Debug",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug", "--workspace", "@bm/auth-service"],
+      "console": "integratedTerminal",
+      "restart": true,
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/modules/auth/auth.service.ts",
-      "outFiles": ["${workspaceFolder}/**/*.js"],
-      "args": ["npm run start:dev"]
+      "cwd": "${workspaceFolder}"
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "NestJS Debug",
+      "name": "API Gateway: Debug",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:debug"],
+      "runtimeArgs": ["run", "start:debug", "--workspace", "@bm/api-gateway"],
       "console": "integratedTerminal",
       "restart": true,
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}"
     }
   ]
 }

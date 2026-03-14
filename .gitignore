@@ -1,7 +1,13 @@
 # compiled output
 /dist
-/node_modules
 /build
+**/dist
+**/coverage
+*.tsbuildinfo
+/node_modules
+**/node_modules
+/.turbo
+/packages/*/generated/
 
 # Logs
 logs
@@ -56,3 +62,4 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
+.codex
